@@ -87,19 +87,19 @@ departure_data_10 = departure_data_10.rename(columns = flight_col_dictionary)
 departure_data_10["CRS Scheduled departure time"] = departure_data_10["CRS Scheduled departure time"].astype(str).str.zfill(4)
 departure_data_10["Hour"] = departure_data_10["CRS Scheduled departure time"].str[:2]
 departure_data_10["Minute"] = departure_data_10["CRS Scheduled departure time"].str[2:]
-departure_data_10["Flight Date & Time"] = pd.to_datetime(departure_data_10["Flight Date"].astype(str) + " " + departure_data_10["Hour"] + ":" + departure_data_10["Minute"])
+departure_data_10["Date"] = pd.to_datetime(departure_data_10["Flight Date"].astype(str) + " " + departure_data_10["Hour"] + ":" + departure_data_10["Minute"])
 departure_data_10 = departure_data_10.drop(columns = ["Hour", "Minute", "CRS Scheduled departure time", "Flight Date"])
 
 #rearrange columns and round date time
 departure_data_10_1 = pd.concat([departure_data_10.iloc[:, -1:], departure_data_10.iloc[:, :-1]],axis=1)
-departure_data_10_1["Flight Date & Time"] = departure_data_10_1["Flight Date & Time"].dt.round("H")  
+departure_data_10_1["Date"] = departure_data_10_1["Date"].dt.round("H")  
 
 #merge datasets on date, store in a list and concatonate
 large = []
 for i in airports_top10:
     sliced = departure_data_10_1[departure_data_10_1["Origin Airport"] == i]
     wd = weather_datasets[i]
-    merger = pd.merge(sliced, wd, left_on = "Flight Date & Time", right_on = "Date", how="left")
+    merger = pd.merge(sliced, wd, left_on = "Date", right_on = "Date", how="left")
     large.append(merger)
 
 
