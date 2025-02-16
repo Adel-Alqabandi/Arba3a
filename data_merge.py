@@ -106,5 +106,4 @@ for i in airports_top10:
 final_merged_data = pd.concat(large, ignore_index=True)
 
 #save merged dataset to .csv
-
-final_merged_data.to_csv("final_merged_data.csv")
+final_merged_data.to_csv("final_merged_data.csv", index=False)
