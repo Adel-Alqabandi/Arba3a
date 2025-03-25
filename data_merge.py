@@ -52,58 +52,60 @@ flight_col_dictionary = {
 
 airports_top10 = ["ATL", "DFW", "DEN", "LAX", "ORD", "JFK", "MCO", "LAS", "CLT", "MIA"]
 
-#Pull Meteostat data and save raw data to .csv
-for airport, coordinates in airports.items():
-    airport_data = Hourly(coordinates, start, end)
-    weather_data = airport_data.fetch()
-    print(airport, "saved to weather_datasets")
-    weather_data.to_csv(f"weather_data/{airport}_weather_data.csv")
+def data_merger():
+    # Pull Meteostat data and save raw data to .csv
+    for airport, coordinates in airports.items():
+        airport_data = Hourly(coordinates, start, end)
+        weather_data = airport_data.fetch()
+        print(airport, "saved to weather_datasets")
+        weather_data.to_csv(f"weather_data/{airport}_weather_data.csv")
 
-#read the weather data .csv's and save into a dictionary
-weather_datasets = {}
-for airport in list(airports.keys()):
-    weather_data = pd.read_csv(f"weather_data/{airport}_weather_data.csv")
-    weather_data = weather_data.reset_index(drop = True)
-    weather_data = weather_data.rename(columns = hourly_dict)
-    weather_data["Date"] = pd.to_datetime(weather_data["Date"], format = "%Y-%m-%d %H:%M:%S") 
-    weather_datasets[airport] = weather_data
+    # Read the weather data .csv's and save into a dictionary
+    weather_datasets = {}
+    for airport in list(airports.keys()):
+        weather_data = pd.read_csv(f"weather_data/{airport}_weather_data.csv")
+        weather_data = weather_data.reset_index(drop = True)
+        weather_data = weather_data.rename(columns = hourly_dict)
+        weather_data["Date"] = pd.to_datetime(weather_data["Date"], format = "%Y-%m-%d %H:%M:%S") 
+        weather_datasets[airport] = weather_data
 
-#Read raw flight data, concatonate, and filter on top 10 airports 
-df_appended = []
-for m in [23,24]:
-    for n in range(1, 10):  
-        if (m==24) and (n>10):
-            pass
-        else:
-            df = pd.read_csv(f"flight_data/Departures {n}-{m}.csv")
-            df_appended.append(df)
-departure_data = pd.concat(df_appended, ignore_index=True)
-departure_data_10 = departure_data[departure_data["ORIGIN"].isin(airports_top10)]
+    # Read raw flight data, concatonate, and filter on top 10 airports 
+    df_appended = []
+    for y in [23,24]:
+        for m in range(1, 13):  
+            if (y==24) and (m>10):
+                pass
+            else:
+                df = pd.read_csv(f"flight_data/Departures {m}-{y}.csv")
+                df_appended.append(df)
+    departure_data = pd.concat(df_appended, ignore_index=True)
+    departure_data_10 = departure_data[departure_data["ORIGIN"].isin(airports_top10)]
 
-#rename
-departure_data_10 = departure_data_10.rename(columns = flight_col_dictionary)
+    # Rename
+    departure_data_10 = departure_data_10.rename(columns = flight_col_dictionary)
 
-#standardise date time
-departure_data_10["CRS Scheduled departure time"] = departure_data_10["CRS Scheduled departure time"].astype(str).str.zfill(4)
-departure_data_10["Hour"] = departure_data_10["CRS Scheduled departure time"].str[:2]
-departure_data_10["Minute"] = departure_data_10["CRS Scheduled departure time"].str[2:]
-departure_data_10["Date"] = pd.to_datetime(departure_data_10["Flight Date"].astype(str) + " " + departure_data_10["Hour"] + ":" + departure_data_10["Minute"])
-departure_data_10 = departure_data_10.drop(columns = ["Hour", "Minute", "CRS Scheduled departure time", "Flight Date"])
+    # Standardise date time
+    departure_data_10["CRS Scheduled departure time"] = departure_data_10["CRS Scheduled departure time"].astype(str).str.zfill(4)
+    departure_data_10["Hour"] = departure_data_10["CRS Scheduled departure time"].str[:2]
+    departure_data_10["Minute"] = departure_data_10["CRS Scheduled departure time"].str[2:]
+    departure_data_10["Date"] = pd.to_datetime(departure_data_10["Flight Date"].astype(str) + " " + departure_data_10["Hour"] + ":" + departure_data_10["Minute"])
+    departure_data_10 = departure_data_10.drop(columns = ["Hour", "Minute", "CRS Scheduled departure time", "Flight Date"])
 
-#rearrange columns and round date time
-departure_data_10_1 = pd.concat([departure_data_10.iloc[:, -1:], departure_data_10.iloc[:, :-1]],axis=1)
-departure_data_10_1["Date"] = departure_data_10_1["Date"].dt.round("H")  
+    # Rearrange columns and round date time
+    departure_data_10_1 = pd.concat([departure_data_10.iloc[:, -1:], departure_data_10.iloc[:, :-1]],axis=1)
+    departure_data_10_1["Date"] = departure_data_10_1["Date"].dt.round("h")  
 
-#merge datasets on date, store in a list and concatonate
-large = []
-for i in airports_top10:
-    sliced = departure_data_10_1[departure_data_10_1["Origin Airport"] == i]
-    wd = weather_datasets[i]
-    merger = pd.merge(sliced, wd, left_on = "Date", right_on = "Date", how="left")
-    large.append(merger)
+    # Merge datasets on date, store in a list and concatonate
+    large = []
+    for i in airports_top10:
+        sliced = departure_data_10_1[departure_data_10_1["Origin Airport"] == i]
+        wd = weather_datasets[i]
+        merger = pd.merge(sliced, wd, left_on = "Date", right_on = "Date", how="left")
+        large.append(merger)
 
 
-final_merged_data = pd.concat(large, ignore_index=True)
+    final_merged_data = pd.concat(large, ignore_index=True)
 
-#save merged dataset to .csv
-final_merged_data.to_csv("final_merged_data.csv", index=False)
+    # save merged dataset to .csv
+    final_merged_data.to_csv("final_merged_data.csv", index=False)
+
