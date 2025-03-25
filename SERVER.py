@@ -121,7 +121,7 @@ def process_conversation(message):
     elif "thank" in message_lower:
         return "You're welcome!"
     else:
-        return "I'm not sure I understand. Could you please rephrase or provide flight details?"
+        return "I'm not sure I understand. Could you please rephrase?"
 
 # Function to determine if user input is flight details or not (True/False)
 def is_flight_detail_message(msg_dict):
