@@ -7,7 +7,6 @@ PORT = 65432
 
 # Function that promts user for flights details and returns as JSON
 def prompt_flight_details():
-    print("\n[CHATBOT]: Please enter your flight details.")
     origin_airport = input("Origin Airport (e.g., JFK): ")
     destination_airport = input("Destination Airport (e.g., LAX): ")
     airline_name = input("Airline Name (e.g., United Air Lines Inc.): ")
