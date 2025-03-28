@@ -2,7 +2,7 @@ import socket
 import json
 
 # Initialise server host address and port
-HOST = "13.53.129.141" # Public IPv4 address of the AWS instance
+HOST = "16.171.254.190" # Public IPv4 address of the AWS instance
 PORT = 65432
 
 # Function that promts user for flights details and returns as JSON
