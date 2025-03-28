@@ -12,7 +12,7 @@ Inputs:
 7) Rain Description
 
 Output:
-1)	Predicted delay in 6 Different Classes (0, 15, 30, 60, 120, 240 minutes)
+1)	Predicted delay in 6 Different Classes (0, 15, 30, 60, 120, 240 minutes)\
 
 Example chatbot interaction:\
 CHATBOT:  Welcome to the Flight Delay Chatbot! This is Oracle. How may I assist you?\
