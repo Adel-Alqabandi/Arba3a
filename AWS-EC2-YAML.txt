@@ -1,0 +1,60 @@
+CFN/YAML
+
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS CloudFormation template to create resources based on provided CLI commands'
+
+Resources:
+
+  LaunchWizard2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: launch-wizard-2
+      GroupDescription: launch-wizard-2 created 2025-03-28T13:43:13.641Z
+      VpcId: vpc-0ad2d2458b8b9811b
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0c1ac8a41498c1a9c
+      InstanceType: t3.micro
+      KeyName: SNS-Project-Key
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: false
+            DeleteOnTermination: true
+            Iops: 3000
+            SnapshotId: snap-0b7078bceafe69fd4
+            VolumeSize: 8
+            VolumeType: gp3
+            Throughput: 125
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet:
+            - !Ref LaunchWizard2SecurityGroup
+      CreditSpecification:
+        CPUCredits: unlimited
+      Tags:
+        - Key: Name
+          Value: SNS-Project
+      MetadataOptions:
+        HttpEndpoint: enabled
+        HttpPutResponseHopLimit: 2
+        HttpTokens: required
+      PrivateDnsNameOptions:
+        HostnameType: ip-name
+        EnableResourceNameDnsARecord: true
+        EnableResourceNameDnsAAAARecord: false
+
+Reasoning:
+1) Libraries and their versions used: AWS CloudFormation Resource Specification v39.0.0
+2) AWS resources impacted: AWS::EC2::SecurityGroup, AWS::EC2::Instance
+3) AWS actions performed: Create a security group, authorize ingress on the security group, launch an EC2 instance with specified configurations.
+4) The generated YAML creates an AWS::EC2::SecurityGroup resource with the specified name, description, and VPC ID. It also authorizes ingress on TCP port 22 from any IP address (0.0.0.0/0). Additionally, it creates an AWS::EC2::Instance resource with the specified image ID, instance type, key pair, block device mapping, network interface (associated with the created security group), credit specification, tags, metadata options, and private DNS name options.
